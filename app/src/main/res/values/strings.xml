@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">DBExample</string>
+    <string name="menu_add">新增</string>
+    <string name="menu_del">删除</string>
+    <string name="menu_edit">修改</string>
+    <string name="tvName">姓名：</string>
+    <string name="tvDesp">介绍：</string>
+    <string name="btn_add">增加</string>
+    <string name="btn_update">修改</string>
+</resources>
