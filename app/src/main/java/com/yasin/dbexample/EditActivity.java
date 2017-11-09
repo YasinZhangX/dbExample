@@ -1,5 +1,6 @@
 package com.yasin.dbexample;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
@@ -25,9 +26,8 @@ public class EditActivity extends AppCompatActivity {
         etInfo = findViewById(R.id.etInfo);
         Intent intent = getIntent();
 
-        if(intent != null)
-        {
-            Bundle bundle = intent.getExtras();
+        Bundle bundle = intent.getExtras();
+        if (bundle != null) {
             _id = bundle.getInt("ID");
             etName.setText(String.format("%s%s", bundle.getString("NAME"),
                     String.valueOf(_id)));
@@ -48,6 +48,10 @@ public class EditActivity extends AppCompatActivity {
                     "','" + info + "')";
             database.execSQL(sql);
             Toast.makeText(getApplicationContext(), "新增成功", Toast.LENGTH_LONG).show();
+            database.close();
+            Intent intent = new Intent();
+            setResult(Activity.RESULT_OK, intent);
+            finish();
         } catch (Exception e)
         {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -64,9 +68,12 @@ public class EditActivity extends AppCompatActivity {
             values.put("_id", _id);
             values.put("name", name);
             values.put("info", info);
-            if (database.update("persons", values, "_id=?",
-                    new String[]{String.valueOf(_id)}) > 0) {
+            if (database.update("persons", values, "name=?", new String[]{String.valueOf(name)}) > 0) {
+                database.close();
                 Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent();
+                setResult(Activity.RESULT_OK, intent);
+                finish();
             }
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();

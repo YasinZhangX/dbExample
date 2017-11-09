@@ -18,7 +18,7 @@ public class Person {
     public static void create(SQLiteDatabase database) {
         String createTable = "create table if not exists persons ("
                 + "_id integer primary key autoincrement, "
-                + "name text not null. "
+                + "name text not null, "
                 + "info text not null );";
         database.execSQL(createTable);
     }
@@ -35,7 +35,7 @@ public class Person {
         String selection = null;
         String[] selectionArgs = null;
         String sortOrder = "_id DESC";
-        Cursor c = database.query("person", projection, selection, selectionArgs,
+        Cursor c = database.query("persons", projection, selection, selectionArgs,
                 null, null, sortOrder);
         c.moveToFirst();
         while (!c.isAfterLast()) {
