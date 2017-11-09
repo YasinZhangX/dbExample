@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.yasin.dbexample.R;
 
 /**
  * SQLiteHelper类
@@ -26,7 +25,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
 
     @Override
     public void onConfigure(SQLiteDatabase db) {
-        db.execSQL("pragma foreign_keys=ON;");
+        db.execSQL("pragma foreign_keys=1;");
     }
 
     @Override
@@ -35,7 +34,7 @@ public class SQLiteHelper extends SQLiteOpenHelper {
         onCreate(sqLiteDatabase);
     }
 
-    private SQLiteDatabase open() { return getWritableDatabase(); }
+    public SQLiteDatabase open() { return getWritableDatabase(); }
 
     public void create() { open(); }
 }
