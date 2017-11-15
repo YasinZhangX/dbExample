@@ -27,11 +27,33 @@ public class MainActivity extends AppCompatActivity {
     Person selectedPerson = new Person();
     private SimpleAdapter adapter;
     private ListView listView;
+    private RefreshableView refreshableView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        refreshableView = (RefreshableView) findViewById(R.id.refreshable_view);
+        refreshableView.setOnRefreshListener(new RefreshableView.PullToRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //listPerson();
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                refreshableView.finishRefreshing();
+            }
+        }, 0);
+
+        //确定已创建数据库
+        SQLiteHelper helper = ((PersonApplication)getApplication()).getSQLiteHelper();
+        SQLiteDatabase database = helper.open();
+        database.close();
+
+        listPerson();
     }
 
     @Override
@@ -66,25 +88,33 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void clickDel() {
-        SQLiteHelper helper = ((PersonApplication)getApplication()).getSQLiteHelper();
-        SQLiteDatabase database = helper.open();
-        int result = database.delete("persons", "name = ?",
-                new String[]{String.valueOf(selectedPerson.name)});
-        database.close();
-        if (result != 0) {
-            listPerson();
-            Toast.makeText(this, "已删除ID=" + selectedPerson._id + "的数据", Toast.LENGTH_SHORT).show();
+        if (selectedPerson != null) {
+            SQLiteHelper helper = ((PersonApplication) getApplication()).getSQLiteHelper();
+            SQLiteDatabase database = helper.open();
+            int result = database.delete("persons", "_id = ?",
+                    new String[]{String.valueOf(selectedPerson._id)});
+            database.close();
+            if (result != 0) {
+                listPerson();
+                Toast.makeText(this, "已删除ID=" + selectedPerson._id + "的数据", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "请先选择数据", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void clickEdit() {
-        Intent intent = new Intent(this, EditActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putInt("ID", selectedPerson._id);
-        bundle.putString("NAME", selectedPerson.name);
-        bundle.putString("INFO", selectedPerson.info);
-        intent.putExtras(bundle);
-        startActivityForResult(intent, IntentCode.EditRequestCode);
+        if (selectedPerson != null) {
+            Intent intent = new Intent(this, EditActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt("ID", selectedPerson._id);
+            bundle.putString("NAME", selectedPerson.name);
+            bundle.putString("INFO", selectedPerson.info);
+            intent.putExtras(bundle);
+            startActivityForResult(intent, IntentCode.EditRequestCode);
+        } else {
+            Toast.makeText(this, "请先选择数据", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -107,10 +137,13 @@ public class MainActivity extends AppCompatActivity {
         list.clear();
         for (Person person : persons) {
             HashMap<String, String> map = new HashMap<>();
-            map.put("name", person.name);
-            map.put("info", person.info + " " + person._id);
+            map.put("name", person._id + ":" + person.name);
+            map.put("info", person.info);
             list.add(map);
         }
+
+        if (persons.size() == 0)
+            Toast.makeText(this, "请先新增数据", Toast.LENGTH_SHORT).show();
 
         if (adapter == null) {
             adapter = new SimpleAdapter(this, list,
@@ -122,8 +155,8 @@ public class MainActivity extends AppCompatActivity {
             listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                    selectedPerson._id = i;
-                    selectedPerson.name = list.get(i).get("name");
+                    selectedPerson._id = Integer.valueOf(list.get(i).get("name").split(":")[0]);
+                    selectedPerson.name = list.get(i).get("name").split(":")[1];
                     selectedPerson.info = list.get(i).get("info");
                 }
             });

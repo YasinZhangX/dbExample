@@ -68,7 +68,7 @@ public class EditActivity extends AppCompatActivity {
             values.put("_id", _id);
             values.put("name", name);
             values.put("info", info);
-            if (database.update("persons", values, "name=?", new String[]{String.valueOf(name)}) > 0) {
+            if (database.update("persons", values, "_id=?", new String[]{String.valueOf(_id)}) > 0) {
                 database.close();
                 Toast.makeText(getApplicationContext(), "成功", Toast.LENGTH_LONG).show();
                 Intent intent = new Intent();
